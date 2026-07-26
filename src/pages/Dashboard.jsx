@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 export default function Dashboard() {
+  //                                 ALL THE STATES
+
   const [showForm, setShowForm] = useState(false);
 
   const [subscription, setSubscription] = useState({
@@ -11,12 +13,35 @@ export default function Dashboard() {
     date: "",
   });
 
+  const [subscriptions, setSubscriptions] = useState([]);
+
+  console.log(subscriptions);
+
+  //                                ALL THE FUNCTIONS
   const handleChange = (e) => {
     setSubscription({ ...subscription, [e.target.name]: e.target.value });
   };
 
+  const handleSave = () => {
+    const newSubscription = { ...subscription, id: crypto.randomUUID() };
+    setSubscriptions([...subscriptions, newSubscription]);
+    setSubscription({
+      name: "",
+      amount: "",
+      currency: "GBP",
+      frequency: "Monthly",
+      date: "",
+    });
+    setShowForm(false);
+  };
+
+  const handleDelete = (id) => {
+    const updatedSubscriptions = subscriptions.filter((sub) => sub.id !== id);
+    setSubscriptions(updatedSubscriptions);
+  };
+
   return (
-    <div className="bg-white py-3 mx-20 h-80 mt-20 mb-20 rounded-2xl p-4">
+    <div className="bg-white py-3 mx-20  mt-20 mb-20 rounded-2xl p-4">
       <button
         onClick={() => setShowForm(!showForm)}
         className="bg-blue-900 px-4 py-2 rounded-2xl text-white"
@@ -45,12 +70,30 @@ export default function Dashboard() {
           <input
             type="date"
             name="date"
-            value={subscription.name}
+            value={subscription.date}
             onChange={handleChange}
             className="border p-2 mt-3 block"
           />
+          <button
+            onClick={handleSave}
+            className="bg-blue-900 px-4 my-1.5 py-2 rounded-2xl text-white"
+          >
+            SAVE
+          </button>
         </div>
       )}
+      {subscriptions.map((sub) => (
+        <div key={sub.id} className="mt-5 border rounded-lg p-4">
+          <h3>{sub.name}</h3>
+          <p>Amount: £{sub.amount}</p>
+          <p>Frequency: {sub.frequency}</p>
+          <p>Currency: {sub.currency}</p>
+          <p>Date: {sub.date}</p>
+          <button onClick={() => handleDelete(sub.id)} className="text-red-700">
+            remove
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
