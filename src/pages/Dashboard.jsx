@@ -1,5 +1,7 @@
 import { useState } from "react";
 
+import Timeline from "../components/timeline/Timeline";
+
 export default function Dashboard() {
   //                                 ALL THE STATES
 
@@ -42,6 +44,7 @@ export default function Dashboard() {
 
   return (
     <div className="bg-white py-3 mx-20  mt-20 mb-20 rounded-2xl p-4">
+      <Timeline />
       <button
         onClick={() => setShowForm(!showForm)}
         className="bg-blue-900 px-4 py-2 rounded-2xl text-white"
