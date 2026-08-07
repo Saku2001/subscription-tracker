@@ -1,88 +1,155 @@
-import { useRef, useState } from "react";
-import { format, addDays } from "date-fns";
+import { useEffect, useRef, useState } from "react";
+import {
+  format,
+  addDays,
+  addMonths,
+  subMonths,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 
 export default function Timeline() {
   const today = new Date();
 
-  //                    STATES
-
-  const [isDragging, setIsDragging] = useState(false);
+  // STATES
   const [selectedDate, setSelectedDate] = useState(today);
+  const [selectedMonth, setSelectedMonth] = useState(today);
 
-  //                    REFs
-
+  // REFS
   const timelineRef = useRef(null);
-
-  const days = [];
+  const selectedDateRef = useRef(null);
 
   const startX = useRef(0);
   const scrollLeft = useRef(0);
+
+  const isPointerDown = useRef(false);
   const hasDragged = useRef(false);
 
-  for (let i = -10; i <= 10; i++) {
-    days.push(addDays(today, i));
+  // This remembers which date we pressed
+  const pressedDate = useRef(null);
+
+  // Create the days
+  const monthStart = startOfMonth(selectedMonth);
+  const monthEnd = endOfMonth(selectedMonth);
+
+  const days = [];
+
+  let currentDay = monthStart;
+
+  while (currentDay <= monthEnd) {
+    days.push(currentDay);
+    currentDay = addDays(currentDay, 1);
   }
+
+  const handleNextMonth = () => {
+    const nextMonth = addMonths(selectedMonth, 1);
+
+    setSelectedMonth(nextMonth);
+    setSelectedDate(startOfMonth(nextMonth));
+  };
+
+  const handlePreviousMonth = () => {
+    const previousMonth = subMonths(selectedMonth, 1);
+
+    setSelectedMonth(previousMonth);
+    setSelectedDate(startOfMonth(previousMonth));
+  };
 
   const todayString = format(today, "yyyy-MM-dd");
   const selectedDateString = format(selectedDate, "yyyy-MM-dd");
+  const selectedMonthString = format(selectedMonth, "MMMM yyyy");
+
+  useEffect(() => {
+    selectedDateRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [selectedDate]);
 
   return (
     <div className="mt-10">
-      <h1>Timeline</h1>
+      <div className="flex items-center justify-center gap-6 mt-5">
+        <button onClick={handlePreviousMonth} className="text-xl">
+          ←
+        </button>
+
+        <span className="font-bold">{selectedMonthString}</span>
+
+        <button onClick={handleNextMonth} className="text-xl">
+          →
+        </button>
+      </div>
+
       <div
         ref={timelineRef}
-        className="flex gap-10 overflow-x-auto whitespace-nowrap scrollbar-hide cursor-grab"
+        className="flex gap-10 overflow-x-auto whitespace-nowrap scrollbar-hide cursor-grab select-none"
         onPointerDown={(e) => {
-          setIsDragging(true);
+          isPointerDown.current = true;
           hasDragged.current = false;
 
           startX.current = e.pageX;
+
           scrollLeft.current = timelineRef.current.scrollLeft;
+
+          const dateElement = e.target.closest("[data-date]");
+
+          if (dateElement) {
+            const dateString = dateElement.dataset.date;
+
+            pressedDate.current = days.find(
+              (day) => format(day, "yyyy-MM-dd") === dateString,
+            );
+          }
         }}
         onPointerMove={(e) => {
-          if (!isDragging) return;
+          if (!isPointerDown.current) return;
 
           const walk = e.pageX - startX.current;
 
+          // If moved more than 5px, this is a drag
           if (Math.abs(walk) > 5) {
             hasDragged.current = true;
           }
 
+          // Move timeline
           timelineRef.current.scrollLeft = scrollLeft.current - walk;
         }}
         onPointerUp={() => {
-          setIsDragging(false);
-        }}
-        onPointerLeave={() => {
-          setIsDragging(false);
+          isPointerDown.current = false;
+
+          // If we didn't drag, this was a click
+          if (!hasDragged.current && pressedDate.current) {
+            console.log("Selected:", pressedDate.current);
+
+            setSelectedDate(pressedDate.current);
+          }
+
+          // Reset
+          pressedDate.current = null;
+          hasDragged.current = false;
         }}
       >
-        {" "}
         {days.map((day) => {
           const dayString = format(day, "yyyy-MM-dd");
 
           const isToday = dayString === todayString;
-
           const isSelected = dayString === selectedDateString;
 
           return (
             <div
               key={day.toISOString()}
-              className="flex flex-col items-center min-w-[40px] cursor-pointer select-none"
-              onClick={() => {
-                if (!hasDragged.current) {
-                  console.log("clicked:", day);
-                  setSelectedDate(day);
-                }
-              }}
+              ref={isSelected ? selectedDateRef : null}
+              data-date={dayString}
+              className="flex flex-col items-center min-w-[40px]"
             >
               {/* Number */}
               <div
-                className={`${
+                className={
                   isToday
                     ? "border border-indigo-950 rounded-full w-8 h-8 flex items-center justify-center"
                     : ""
-                }`}
+                }
               >
                 <span
                   className={`pointer-events-none ${
