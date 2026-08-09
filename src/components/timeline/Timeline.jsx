@@ -41,6 +41,41 @@ export default function Timeline() {
     currentDay = addDays(currentDay, 1);
   }
 
+  const selectCenterDate = () => {
+    const timeline = timelineRef.current;
+
+    if (!timeline) return;
+
+    const timelineCenter =
+      timeline.getBoundingClientRect().left + timeline.offsetWidth / 2;
+
+    let closestDate = null;
+    let closestDistance = Infinity;
+
+    days.forEach((day) => {
+      const dayElement = timeline.querySelector(
+        `[data-date="${format(day, "yyyy-MM-dd")}"]`,
+      );
+
+      if (!dayElement) return;
+
+      const dayRect = dayElement.getBoundingClientRect();
+
+      const dayCenter = dayRect.left + dayRect.width / 2;
+
+      const distance = Math.abs(timelineCenter - dayCenter);
+
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestDate = day;
+      }
+    });
+
+    if (closestDate) {
+      setSelectedDate(closestDate);
+    }
+  };
+
   const handleNextMonth = () => {
     const nextMonth = addMonths(selectedMonth, 1);
 
@@ -118,14 +153,16 @@ export default function Timeline() {
         onPointerUp={() => {
           isPointerDown.current = false;
 
-          // If we didn't drag, this was a click
           if (!hasDragged.current && pressedDate.current) {
-            console.log("Selected:", pressedDate.current);
-
+            // Normal click
             setSelectedDate(pressedDate.current);
           }
 
-          // Reset
+          if (hasDragged.current) {
+            // User dragged
+            selectCenterDate();
+          }
+
           pressedDate.current = null;
           hasDragged.current = false;
         }}
