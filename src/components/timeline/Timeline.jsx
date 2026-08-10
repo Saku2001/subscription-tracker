@@ -8,11 +8,11 @@ import {
   endOfMonth,
 } from "date-fns";
 
-export default function Timeline() {
+export default function Timeline({ selectedDate, setSelectedDate }) {
   const today = new Date();
 
   // STATES
-  const [selectedDate, setSelectedDate] = useState(today);
+
   const [selectedMonth, setSelectedMonth] = useState(today);
 
   // REFS

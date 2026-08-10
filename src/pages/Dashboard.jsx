@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { format } from "date-fns";
 
 import Timeline from "../components/timeline/Timeline";
 
@@ -19,7 +20,14 @@ export default function Dashboard() {
 
   const [editingId, setEditingId] = useState(null);
 
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   console.log(subscriptions);
+
+  //                      FILTERED SUBS ON SELECTED DATE
+  const selectedSubscriptions = subscriptions.filter(
+    (sub) => sub.date === format(selectedDate, "yyyy-MM-dd"),
+  );
 
   //                                ALL THE FUNCTIONS
   const handleChange = (e) => {
@@ -27,9 +35,9 @@ export default function Dashboard() {
   };
 
   const handleSave = () => {
-      console.log("SAVE CLICKED");
-      console.log("editingId:", editingId);
-      console.log("subscription:", subscription);
+    console.log("SAVE CLICKED");
+    console.log("editingId:", editingId);
+    console.log("subscription:", subscription);
     if (!subscription.name || !subscription.amount || !subscription.date) {
       alert("Please fill the required fields");
       return;
@@ -83,7 +91,10 @@ export default function Dashboard() {
 
   return (
     <div className="bg-white py-3 mx-20  mt-20 mb-20 rounded-2xl p-4">
-      <Timeline />
+      <Timeline selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
+
+      <p>Selected date: {format(selectedDate, "dd/MM/yyyy")}</p>
+
       <button
         onClick={() => setShowForm(!showForm)}
         className="bg-blue-900 px-4 py-2 rounded-2xl text-white"
@@ -143,7 +154,7 @@ export default function Dashboard() {
           </button>
         </div>
       )}
-      {subscriptions.map((sub) => (
+      {selectedSubscriptions.map((sub) => (
         <div key={sub.id} className="mt-5 border rounded-lg p-4">
           <h3>{sub.name}</h3>
           <p>Amount: £{sub.amount}</p>
