@@ -25,6 +25,10 @@ export default function Dashboard() {
   };
 
   const handleSave = () => {
+    if (!subscription.name || !subscription.amount || !subscription.date) {
+      alert("Please fill the required fields");
+      return;
+    }
     const newSubscription = { ...subscription, id: crypto.randomUUID() };
     setSubscriptions([...subscriptions, newSubscription]);
     setSubscription({
@@ -70,6 +74,25 @@ export default function Dashboard() {
             onChange={handleChange}
             className="border p-2 mt-3 block"
           />
+          <select
+            name="currency"
+            value={subscription.currency}
+            onChange={handleChange}
+            className="border p-2 mt-3 block"
+          >
+            <option value="GBP">GBP (£)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="USD">USD ($)</option>
+          </select>
+          <select
+            name="frequency"
+            value={subscription.frequency}
+            onChange={handleChange}
+            className="border p-2 mt-3 block"
+          >
+            <option value="Monthly">Monthly</option>
+            <option value="Yearly">Yearly</option>
+          </select>
           <input
             type="date"
             name="date"
