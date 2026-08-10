@@ -17,6 +17,8 @@ export default function Dashboard() {
 
   const [subscriptions, setSubscriptions] = useState([]);
 
+  const [editingId, setEditingId] = useState(null);
+
   console.log(subscriptions);
 
   //                                ALL THE FUNCTIONS
@@ -25,12 +27,37 @@ export default function Dashboard() {
   };
 
   const handleSave = () => {
+      console.log("SAVE CLICKED");
+      console.log("editingId:", editingId);
+      console.log("subscription:", subscription);
     if (!subscription.name || !subscription.amount || !subscription.date) {
       alert("Please fill the required fields");
       return;
     }
-    const newSubscription = { ...subscription, id: crypto.randomUUID() };
-    setSubscriptions([...subscriptions, newSubscription]);
+
+    if (editingId !== null) {
+      const updatedSubscriptions = subscriptions.map((sub) => {
+        if (sub.id === editingId) {
+          return {
+            ...subscription,
+            id: editingId,
+          };
+        }
+
+        return sub;
+      });
+
+      setSubscriptions(updatedSubscriptions);
+      setEditingId(null);
+    } else {
+      const newSubscription = {
+        ...subscription,
+        id: crypto.randomUUID(),
+      };
+
+      setSubscriptions([...subscriptions, newSubscription]);
+    }
+
     setSubscription({
       name: "",
       amount: "",
@@ -38,12 +65,20 @@ export default function Dashboard() {
       frequency: "Monthly",
       date: "",
     });
+
     setShowForm(false);
   };
 
   const handleDelete = (id) => {
     const updatedSubscriptions = subscriptions.filter((sub) => sub.id !== id);
     setSubscriptions(updatedSubscriptions);
+  };
+
+  const handleEdit = (sub) => {
+    console.log("EDIT CLICKED:", sub);
+    setSubscription(sub);
+    setEditingId(sub.id);
+    setShowForm(true);
   };
 
   return (
@@ -117,6 +152,12 @@ export default function Dashboard() {
           <p>Date: {sub.date}</p>
           <button onClick={() => handleDelete(sub.id)} className="text-red-700">
             remove
+          </button>
+          <button
+            onClick={() => handleEdit(sub)}
+            className="text-blue-700 mr-4"
+          >
+            Edit
           </button>
         </div>
       ))}
