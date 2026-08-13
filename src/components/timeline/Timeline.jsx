@@ -8,7 +8,11 @@ import {
   endOfMonth,
 } from "date-fns";
 
-export default function Timeline({ selectedDate, setSelectedDate }) {
+export default function Timeline({
+  selectedDate,
+  setSelectedDate,
+  onStatistics,
+}) {
   const today = new Date();
 
   // STATES
@@ -104,6 +108,12 @@ export default function Timeline({ selectedDate, setSelectedDate }) {
 
   return (
     <div className="mt-10">
+      <button
+        onClick={onStatistics}
+        className="bg-indigo-950 text-white px-4 py-2 rounded-xl"
+      >
+        Statistics
+      </button>
       <div className="flex items-center justify-center gap-6 mt-5">
         <button onClick={handlePreviousMonth} className="text-xl">
           ←

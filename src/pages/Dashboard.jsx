@@ -3,6 +3,8 @@ import { format, getDaysInMonth } from "date-fns";
 
 import Timeline from "../components/timeline/Timeline";
 
+import Statistics from "../components/statistics/Statistics";
+
 export default function Dashboard() {
   //                                 ALL THE STATES
 
@@ -22,14 +24,14 @@ export default function Dashboard() {
 
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const [showStatistics, setShowStatistics] = useState(false);
+
   console.log(subscriptions);
 
   //                      FILTERED SUBS ON SELECTED DATE
 const selectedSubscriptions = subscriptions.filter((sub) => {
   const subscriptionDate = new Date(sub.date);
 
-  const selectedYear = selectedDate.getFullYear();
-  const selectedMonth = selectedDate.getMonth();
 
   const subscriptionDay = subscriptionDate.getDate();
 
@@ -120,8 +122,18 @@ const selectedSubscriptions = subscriptions.filter((sub) => {
 
   return (
     <div className="bg-white py-3 mx-20  mt-20 mb-20 rounded-2xl p-4">
-      <Timeline selectedDate={selectedDate} setSelectedDate={setSelectedDate} />
-
+      {showStatistics ? (
+        <Statistics
+          subscriptions={subscriptions}
+          onClose={() => setShowStatistics(false)}
+        />
+      ) : (
+        <Timeline
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          onStatistics={() => setShowStatistics(true)}
+        />
+      )}
       <p>Selected date: {format(selectedDate, "dd/MM/yyyy")}</p>
 
       <button
