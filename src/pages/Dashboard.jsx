@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format } from "date-fns";
+import { format, getDaysInMonth } from "date-fns";
 
 import Timeline from "../components/timeline/Timeline";
 
@@ -25,10 +25,39 @@ export default function Dashboard() {
   console.log(subscriptions);
 
   //                      FILTERED SUBS ON SELECTED DATE
-  const selectedSubscriptions = subscriptions.filter(
-    (sub) => sub.date === format(selectedDate, "yyyy-MM-dd"),
-  );
+const selectedSubscriptions = subscriptions.filter((sub) => {
+  const subscriptionDate = new Date(sub.date);
 
+  const selectedYear = selectedDate.getFullYear();
+  const selectedMonth = selectedDate.getMonth();
+
+  const subscriptionDay = subscriptionDate.getDate();
+
+  // MONTHLY
+  if (sub.frequency === "Monthly") {
+    // How many days does the selected month have?
+    const daysInSelectedMonth = getDaysInMonth(selectedDate);
+
+    // If the subscription day doesn't exist in this month,
+    // use the last day of the month.
+    const billingDay = Math.min(subscriptionDay, daysInSelectedMonth);
+
+    return (
+      selectedDate >= subscriptionDate && selectedDate.getDate() === billingDay
+    );
+  }
+
+  // YEARLY
+  if (sub.frequency === "Yearly") {
+    return (
+      selectedDate >= subscriptionDate &&
+      selectedDate.getMonth() === subscriptionDate.getMonth() &&
+      selectedDate.getDate() === subscriptionDay
+    );
+  }
+
+  return false;
+});
   //                                ALL THE FUNCTIONS
   const handleChange = (e) => {
     setSubscription({ ...subscription, [e.target.name]: e.target.value });
