@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { format, getDaysInMonth } from "date-fns";
+import { format, getDaysInMonth, parseISO, startOfDay } from "date-fns";
 
 import Timeline from "../components/timeline/Timeline";
 
@@ -30,31 +30,39 @@ export default function Dashboard() {
 
   //                      FILTERED SUBS ON SELECTED DATE
 const selectedSubscriptions = subscriptions.filter((sub) => {
-  const subscriptionDate = new Date(sub.date);
+  console.log("SELECTED DATE:", format(selectedDate, "yyyy-MM-dd"));
 
+  const subscriptionDate = parseISO(sub.date);
+
+  console.log(
+    "CHECKING:",
+    sub.name,
+    "subscription date:",
+    format(subscriptionDate, "yyyy-MM-dd"),
+    "frequency:",
+    sub.frequency,
+  );
+
+  const selected = startOfDay(selectedDate);
+  const startDate = startOfDay(subscriptionDate);
 
   const subscriptionDay = subscriptionDate.getDate();
 
   // MONTHLY
   if (sub.frequency === "Monthly") {
-    // How many days does the selected month have?
-    const daysInSelectedMonth = getDaysInMonth(selectedDate);
+    const daysInSelectedMonth = getDaysInMonth(selected);
 
-    // If the subscription day doesn't exist in this month,
-    // use the last day of the month.
     const billingDay = Math.min(subscriptionDay, daysInSelectedMonth);
 
-    return (
-      selectedDate >= subscriptionDate && selectedDate.getDate() === billingDay
-    );
+    return selected >= startDate && selected.getDate() === billingDay;
   }
 
   // YEARLY
   if (sub.frequency === "Yearly") {
     return (
-      selectedDate >= subscriptionDate &&
-      selectedDate.getMonth() === subscriptionDate.getMonth() &&
-      selectedDate.getDate() === subscriptionDay
+      selected >= startDate &&
+      selected.getMonth() === subscriptionDate.getMonth() &&
+      selected.getDate() === subscriptionDay
     );
   }
 
@@ -198,7 +206,9 @@ const selectedSubscriptions = subscriptions.filter((sub) => {
       {selectedSubscriptions.map((sub) => (
         <div key={sub.id} className="mt-5 border rounded-lg p-4">
           <h3>{sub.name}</h3>
-          <p>Amount: £{sub.amount}</p>
+          <p>
+            Amount: {sub.currency} {sub.amount}
+          </p>
           <p>Frequency: {sub.frequency}</p>
           <p>Currency: {sub.currency}</p>
           <p>Date: {sub.date}</p>
