@@ -1,4 +1,13 @@
 import { useState } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+  CartesianGrid,
+} from "recharts";
 
 export default function Statistics({ subscriptions, onClose }) {
   // SEARCH
@@ -57,6 +66,18 @@ export default function Statistics({ subscriptions, onClose }) {
 
     return mostExpensive;
   }, null);
+  const chartData = subscriptions
+    .map((sub) => {
+      const amount = Number(sub.amount);
+
+      const monthlyAmount = sub.frequency === "Yearly" ? amount / 12 : amount;
+
+      return {
+        name: sub.name,
+        amount: monthlyAmount,
+      };
+    })
+    .sort((a, b) => b.amount - a.amount);
 
   return (
     <div>
@@ -148,6 +169,34 @@ export default function Statistics({ subscriptions, onClose }) {
         ) : (
           <p className="text-gray-500">No subscriptions found.</p>
         )}
+      </div>
+      <div className="mt-8 border rounded-xl p-4">
+        <h2 className="text-xl font-bold mb-4">Monthly Cost by Subscription</h2>
+
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart
+            data={chartData}
+            layout="vertical"
+            margin={{
+              top: 10,
+              right: 20,
+              left: 20,
+              bottom: 10,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+
+            <XAxis type="number" tickFormatter={(value) => `£${value}`} />
+
+            <YAxis type="category" dataKey="name" width={80} />
+
+            <Tooltip
+              formatter={(value) => [`£${Number(value).toFixed(2)}`, "Monthly"]}
+            />
+
+            <Bar dataKey="amount" fill="#312e81" radius={[0, 6, 6, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
