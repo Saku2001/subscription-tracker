@@ -37,7 +37,7 @@ app.get("/api/companies", async (req, res) => {
 
     const data = await response.json();
 
-    res.json(data);
+    res.json(data.slice(0, 5));
   } catch (error) {
     console.error("Server error:", error);
 

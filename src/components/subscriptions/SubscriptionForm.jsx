@@ -1,6 +1,11 @@
 import { useState } from "react";
 
-export default function SubscriptionForm({ subscription, onChange, onSave }) {
+export default function SubscriptionForm({
+  subscription,
+  onChange,
+  onSave,
+  onCompanySelect,
+}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [companies, setCompanies] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -42,31 +47,13 @@ export default function SubscriptionForm({ subscription, onChange, onSave }) {
   };
 
   const handleCompanySelect = (company) => {
+    console.log("SELECTED COMPANY:", company);
+
     setSearchTerm(company.name);
     setCompanies([]);
 
-    onChange({
-      target: {
-        name: "name",
-        value: company.name,
-      },
-    });
-
-    onChange({
-      target: {
-        name: "domain",
-        value: company.domain,
-      },
-    });
-
-    onChange({
-      target: {
-        name: "logo",
-        value: company.logo_url,
-      },
-    });
+    onCompanySelect(company);
   };
-
   return (
     <div className="mt-6 p-4 border rounded-lg">
       <h2>Add Subscription Form</h2>

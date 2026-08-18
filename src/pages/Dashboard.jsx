@@ -75,14 +75,24 @@ const selectedSubscriptions = subscriptions.filter((sub) => {
   return false;
 });
   //                                ALL THE FUNCTIONS
-  const handleChange = (e) => {
-    setSubscription({ ...subscription, [e.target.name]: e.target.value });
-  };
+const handleChange = (e) => {
+  setSubscription({
+    ...subscription,
+    [e.target.name]: e.target.value,
+  });
+};
+const handleCompanySelect = (company) => {
+  setSubscription((prev) => ({
+    ...prev,
+    name: company.name,
+    domain: company.domain,
+    logo: company.logo_url,
+  }));
+};
 
   const handleSave = () => {
-    console.log("SAVE CLICKED");
-    console.log("editingId:", editingId);
-    console.log("subscription:", subscription);
+  console.log("SUBSCRIPTION BEFORE SAVE:", subscription);
+
     if (
       !subscription.name ||
       !subscription.domain ||
@@ -166,6 +176,7 @@ const selectedSubscriptions = subscriptions.filter((sub) => {
           subscription={subscription}
           onChange={handleChange}
           onSave={handleSave}
+          onCompanySelect={handleCompanySelect}
         />
       )}
       {selectedSubscriptions.map((sub) => (
