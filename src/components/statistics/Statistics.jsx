@@ -102,6 +102,29 @@ export default function Statistics({ subscriptions, onClose }) {
           className="w-full border rounded-xl p-3 outline-none"
         />
       </div>
+      {searchTerm.trim() !== "" && (
+        <div className="mt-8">
+          <h2 className="text-xl font-bold mb-4">Search Results</h2>
+
+          {filteredSubscriptions.length > 0 ? (
+            filteredSubscriptions.map((sub) => (
+              <div key={sub.id} className="border rounded-xl p-4 mb-3">
+                <h3 className="font-bold text-lg">{sub.name}</h3>
+
+                <p>
+                  Amount: {sub.currency} {sub.amount}
+                </p>
+
+                <p>Frequency: {sub.frequency}</p>
+
+                <p>Billing date: {sub.date}</p>
+              </div>
+            ))
+          ) : (
+            <p className="text-gray-500">No subscriptions found.</p>
+          )}
+        </div>
+      )}
 
       {/* STATISTICS CARDS */}
 
@@ -149,27 +172,6 @@ export default function Statistics({ subscriptions, onClose }) {
 
       {/* SEARCH RESULTS */}
 
-      <div className="mt-8">
-        <h2 className="text-xl font-bold mb-4">Your Subscriptions</h2>
-
-        {filteredSubscriptions.length > 0 ? (
-          filteredSubscriptions.map((sub) => (
-            <div key={sub.id} className="border rounded-xl p-4 mb-3">
-              <h3 className="font-bold text-lg">{sub.name}</h3>
-
-              <p>
-                Amount: {sub.currency} {sub.amount}
-              </p>
-
-              <p>Frequency: {sub.frequency}</p>
-
-              <p>Billing date: {sub.date}</p>
-            </div>
-          ))
-        ) : (
-          <p className="text-gray-500">No subscriptions found.</p>
-        )}
-      </div>
       <div className="mt-8 border rounded-xl p-4">
         <h2 className="text-xl font-bold mb-4">Monthly Cost by Subscription</h2>
 
