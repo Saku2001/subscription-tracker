@@ -7,11 +7,15 @@ import {
   Tooltip,
   ResponsiveContainer,
   CartesianGrid,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
 
 export default function Statistics({ subscriptions, onClose }) {
   // SEARCH
   const [searchTerm, setSearchTerm] = useState("");
+  const [period, setPeriod] = useState("monthly");
 
   const filteredSubscriptions = subscriptions.filter((sub) =>
     sub.name.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -47,25 +51,8 @@ export default function Statistics({ subscriptions, onClose }) {
     return total;
   }, 0);
 
-  // MOST EXPENSIVE
-  const mostExpensive = subscriptions.reduce((mostExpensive, sub) => {
-    const amount = Number(sub.amount);
-
-    let monthlyAmount = amount;
-
-    if (sub.frequency === "Yearly") {
-      monthlyAmount = amount / 12;
-    }
-
-    if (mostExpensive === null || monthlyAmount > mostExpensive.monthlyAmount) {
-      return {
-        ...sub,
-        monthlyAmount,
-      };
-    }
-
-    return mostExpensive;
-  }, null);
+  // AMOUNT DISPLAYED IN DONUT
+  const displayedCost = period === "monthly" ? monthlyCost : yearlyCost;
   const chartData = subscriptions
     .map((sub) => {
       const amount = Number(sub.amount);
@@ -78,6 +65,12 @@ export default function Statistics({ subscriptions, onClose }) {
       };
     })
     .sort((a, b) => b.amount - a.amount);
+  const ringData = [
+    {
+      name: "Total",
+      value: 100,
+    },
+  ];
 
   return (
     <div>
@@ -128,48 +121,73 @@ export default function Statistics({ subscriptions, onClose }) {
 
       {/* STATISTICS CARDS */}
 
-      <div className="grid grid-cols-2 gap-4">
-        {/* MONTHLY */}
+      {/* DONUT CARD */}
 
-        <div className="border rounded-xl p-4">
-          <p className="text-gray-500">Monthly Cost</p>
+      <div className="mt-6 border rounded-2xl p-5 bg-white">
+        {/* MONTHLY / YEARLY TOGGLE */}
 
-          <h2 className="text-2xl font-bold">£{monthlyCost.toFixed(2)}</h2>
+        <div className="flex justify-center mb-4">
+          <div className="flex bg-gray-100 rounded-xl p-1">
+            <button
+              onClick={() => setPeriod("monthly")}
+              className={`px-5 py-2 rounded-lg text-sm font-medium transition ${
+                period === "monthly"
+                  ? "bg-indigo-950 text-white"
+                  : "text-gray-500"
+              }`}
+            >
+              Monthly
+            </button>
+
+            <button
+              onClick={() => setPeriod("yearly")}
+              className={`px-5 py-2 rounded-lg text-sm font-medium transition ${
+                period === "yearly"
+                  ? "bg-indigo-500 text-white"
+                  : "text-gray-500"
+              }`}
+            >
+              Yearly
+            </button>
+          </div>
         </div>
 
-        {/* YEARLY */}
+        {/* DONUT CONTAINER */}
 
-        <div className="border rounded-xl p-4">
-          <p className="text-gray-500">Yearly Cost</p>
+        <div className="relative w-full h-[300px]">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={ringData}
+                dataKey="value"
+                cx="50%"
+                cy="50%"
+                innerRadius="68%"
+                outerRadius="88%"
+                startAngle={90}
+                endAngle={-270}
+                stroke="none"
+              >
+                <Cell fill="#312e81" />
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
 
-          <h2 className="text-2xl font-bold">£{yearlyCost.toFixed(2)}</h2>
-        </div>
+          {/* CENTER CONTENT */}
 
-        {/* NUMBER OF SUBSCRIPTIONS */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="flex flex-col items-center justify-center text-center">
+              <p className="text-4xl font-bold text-indigo-950">
+                £{displayedCost.toFixed(2)}
+              </p>
 
-        <div className="border rounded-xl p-4">
-          <p className="text-gray-500">Subscriptions</p>
-
-          <h2 className="text-2xl font-bold">{subscriptions.length}</h2>
-        </div>
-
-        {/* MOST EXPENSIVE */}
-
-        <div className="border rounded-xl p-4">
-          <p className="text-gray-500">Most Expensive</p>
-
-          <h2 className="text-2xl font-bold">
-            {mostExpensive ? mostExpensive.name : "None"}
-          </h2>
-
-          <p className="text-gray-500">
-            {mostExpensive
-              ? `£${mostExpensive.monthlyAmount.toFixed(2)} / month`
-              : "No subscriptions"}
-          </p>
+              <p className="text-sm text-gray-500 mt-1">
+                {subscriptions.length} subscriptions
+              </p>
+            </div>
+          </div>
         </div>
       </div>
-
       {/* SEARCH RESULTS */}
 
       <div className="mt-8 border rounded-xl p-4">
