@@ -162,8 +162,8 @@ export default function Statistics({ subscriptions, onClose }) {
                 dataKey="value"
                 cx="50%"
                 cy="50%"
-                innerRadius="68%"
-                outerRadius="88%"
+                innerRadius="88%"
+                outerRadius="108%"
                 startAngle={90}
                 endAngle={-270}
                 stroke="none"
@@ -193,7 +193,7 @@ export default function Statistics({ subscriptions, onClose }) {
       <div className="mt-8 border rounded-xl p-4">
         <h2 className="text-xl font-bold mb-4">Monthly Cost by Subscription</h2>
 
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="100%" height={150}>
           <BarChart
             data={chartData}
             layout="vertical"
