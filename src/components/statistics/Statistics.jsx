@@ -1,4 +1,5 @@
 import { useState } from "react";
+import SubscriptionCard from "../subscriptions/SubscriptionCard";
 import {
   BarChart,
   Bar,
@@ -12,7 +13,12 @@ import {
   Cell,
 } from "recharts";
 
-export default function Statistics({ subscriptions, onClose }) {
+export default function Statistics({
+  subscriptions,
+  onClose,
+  onDelete,
+  onEdit,
+}) {
   // SEARCH
   const [searchTerm, setSearchTerm] = useState("");
   const [period, setPeriod] = useState("monthly");
@@ -101,17 +107,12 @@ export default function Statistics({ subscriptions, onClose }) {
 
           {filteredSubscriptions.length > 0 ? (
             filteredSubscriptions.map((sub) => (
-              <div key={sub.id} className="border rounded-xl p-4 mb-3">
-                <h3 className="font-bold text-lg">{sub.name}</h3>
-
-                <p>
-                  Amount: {sub.currency} {sub.amount}
-                </p>
-
-                <p>Frequency: {sub.frequency}</p>
-
-                <p>Billing date: {sub.date}</p>
-              </div>
+              <SubscriptionCard
+                key={sub.id}
+                subscription={sub}
+                onDelete={onDelete}
+                onEdit={onEdit}
+              />
             ))
           ) : (
             <p className="text-gray-500">No subscriptions found.</p>
@@ -143,7 +144,7 @@ export default function Statistics({ subscriptions, onClose }) {
               onClick={() => setPeriod("yearly")}
               className={`px-5 py-2 rounded-lg text-sm font-medium transition ${
                 period === "yearly"
-                  ? "bg-indigo-500 text-white"
+                  ? "bg-indigo-950 text-white"
                   : "text-gray-500"
               }`}
             >
@@ -154,7 +155,7 @@ export default function Statistics({ subscriptions, onClose }) {
 
         {/* DONUT CONTAINER */}
 
-        <div className="relative w-full h-[300px]">
+        <div className="relative w-full h-[350px]">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
@@ -162,8 +163,8 @@ export default function Statistics({ subscriptions, onClose }) {
                 dataKey="value"
                 cx="50%"
                 cy="50%"
-                innerRadius="88%"
-                outerRadius="108%"
+                innerRadius="75%"
+                outerRadius="92%"
                 startAngle={90}
                 endAngle={-270}
                 stroke="none"
